@@ -26,6 +26,25 @@ class HomeViewController: UIViewController {
         
     }
     
+    @IBAction func StatiiBtn(_ sender: Any) {
+        
+        let mainTabController = storyboard?.instantiateViewController(withIdentifier: "MainTabController") as! MainTabController
+        
+        mainTabController.selectedViewController = mainTabController.viewControllers?[1]
+        
+        present(mainTabController,animated: true, completion: nil)
+        
+    }
+    
+    @IBAction func CautareBtn(_ sender: Any) {
+        let mainTabController = storyboard?.instantiateViewController(withIdentifier: "MainTabController") as! MainTabController
+        
+        mainTabController.selectedViewController = mainTabController.viewControllers?[2]
+        
+        present(mainTabController,animated: true, completion: nil)
+    }
+    
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.

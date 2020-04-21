@@ -101,6 +101,7 @@ extension LinesViewController: UITableViewDataSource, UITableViewDelegate{
 
 extension LinesViewController: UISearchBarDelegate{
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        //print("aici")
         searchedLine = dataSource.filter({$0.name!.lowercased().contains(searchText.lowercased()) } )
         isSearching = true
         tvReloadData()
