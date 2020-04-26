@@ -18,9 +18,15 @@ class CustomSearchViewController: UIViewController {
     
     @IBOutlet weak var searchBtn: UIButton!
     
+    @IBOutlet weak var peopleTextBox: UITextField!
+    
+    @IBOutlet weak var timeTextBox: UITextField!
+    
     var toggleStatus: Int = 0
     var dataStatus: Int = 0
     
+    @IBOutlet var placeTblView: UIView!
+    @IBOutlet weak var resultBtn: UIButton!
     /*
     var srchSource = UISearchBar()
     var srchDestination = UISearchBar()
@@ -51,9 +57,31 @@ class CustomSearchViewController: UIViewController {
     @IBAction func searchRoute(_ sender: Any) {
     }
     
+    
+    @IBAction func switchBus(_ sender: Any) {
+    }
+    
+    @IBAction func switchTrolley(_ sender: Any) {
+    }
+    
+    @IBAction func switchTram(_ sender: Any) {
+    }
+    
+    @IBAction func srcBtn(_ sender: Any) {
+        //print("aici")
+        //let searchPlaces = SearchPlacesViewController()
+        //searchPlaces.searchFor = "From"
+        //navigationController?.pushViewController(searchPlaces, animated: true)
+    }
+    
+    @IBAction func  goToRslts(_ sender: Any) {
+        
+    }
+    
     func configView(){
         self.filterView.isHidden = true
         self.searchBtn.isHidden = true
+        self.placeTblView.isHidden = true
     }
     
     func toggleSearchBtn() {
@@ -160,7 +188,12 @@ class CustomSearchViewController: UIViewController {
 
 extension CustomSearchViewController: UISearchBarDelegate{
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        print("aici")
+        //print("aici")
+       // let searchPlaces = SearchPlacesViewController()
+       // searchPlaces.searchFor = "From"
+       // navigationController?.pushViewController(searchPlaces, animated: true)
+        
+        
     }
     //func searchbarth
 }

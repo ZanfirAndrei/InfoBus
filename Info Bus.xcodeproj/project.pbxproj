@@ -11,6 +11,7 @@
 		F40A153F2449EA4E00464369 /* ModelsHelperClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40A153E2449EA4E00464369 /* ModelsHelperClass.swift */; };
 		F432525E24470C4A00830693 /* HelperClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = F432525D24470C4A00830693 /* HelperClass.swift */; };
 		F43CFC88244D076300503D2F /* LineStopsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43CFC87244D076300503D2F /* LineStopsViewController.swift */; };
+		F446C8562454760500E2C2E1 /* SearchResultsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F446C8552454760500E2C2E1 /* SearchResultsViewController.swift */; };
 		F48203E7244DF6A600764471 /* CustomSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48203E6244DF6A600764471 /* CustomSearchViewController.swift */; };
 		F4EB0B0B24466FDF00AA5136 /* MainTabController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4EB0B0A24466FDF00AA5136 /* MainTabController.swift */; };
 		F4ED1C83244728BF00509090 /* LinesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4ED1C82244728BF00509090 /* LinesViewController.swift */; };
@@ -30,6 +31,7 @@
 		F40A153E2449EA4E00464369 /* ModelsHelperClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelsHelperClass.swift; sourceTree = "<group>"; };
 		F432525D24470C4A00830693 /* HelperClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelperClass.swift; sourceTree = "<group>"; };
 		F43CFC87244D076300503D2F /* LineStopsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LineStopsViewController.swift; sourceTree = "<group>"; };
+		F446C8552454760500E2C2E1 /* SearchResultsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsViewController.swift; sourceTree = "<group>"; };
 		F48203E6244DF6A600764471 /* CustomSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomSearchViewController.swift; sourceTree = "<group>"; };
 		F4EB0B0A24466FDF00AA5136 /* MainTabController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabController.swift; sourceTree = "<group>"; };
 		F4ED1C82244728BF00509090 /* LinesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinesViewController.swift; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 				F4FE1E77244B72F300BABD1C /* StopsViewController.swift */,
 				F4FE1E79244BE69900BABD1C /* StopDetailsViewController.swift */,
 				F48203E6244DF6A600764471 /* CustomSearchViewController.swift */,
+				F446C8552454760500E2C2E1 /* SearchResultsViewController.swift */,
 				F432525D24470C4A00830693 /* HelperClass.swift */,
 				F40A153E2449EA4E00464369 /* ModelsHelperClass.swift */,
 				F4FAE67A24463CAA00FE9355 /* Main.storyboard */,
@@ -235,6 +238,7 @@
 				F4FE1E78244B72F300BABD1C /* StopsViewController.swift in Sources */,
 				F432525E24470C4A00830693 /* HelperClass.swift in Sources */,
 				F4FE1E7A244BE69900BABD1C /* StopDetailsViewController.swift in Sources */,
+				F446C8562454760500E2C2E1 /* SearchResultsViewController.swift in Sources */,
 				F43CFC88244D076300503D2F /* LineStopsViewController.swift in Sources */,
 				F40A153F2449EA4E00464369 /* ModelsHelperClass.swift in Sources */,
 				F48203E7244DF6A600764471 /* CustomSearchViewController.swift in Sources */,
