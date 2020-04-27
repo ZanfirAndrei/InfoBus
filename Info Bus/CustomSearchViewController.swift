@@ -22,19 +22,29 @@ class CustomSearchViewController: UIViewController {
     
     @IBOutlet weak var timeTextBox: UITextField!
     
-    var toggleStatus: Int = 0
-    var dataStatus: Int = 0
+    @IBOutlet weak var placeTblView: UITableView!
     
-    @IBOutlet var placeTblView: UIView!
     @IBOutlet weak var resultBtn: UIButton!
-    /*
-    var srchSource = UISearchBar()
-    var srchDestination = UISearchBar()
-    var tblView = UITableView()
-    var lblNoData = UILabel()
-    var btnFilter = UIButton()
-    var btnSearch = UIButton()
-    */
+    
+    
+    var toggleStatus: Int = 0
+    var srcDataSource: [Place] = []
+    var destDataSource: [Place] = []
+    var tableDataSource: [Place] = []
+    var routeDataSource: [Route] = []
+    
+    var srcData: Place?
+    var destData: Place?
+    var isSrchSrcClicked: Bool = false
+    var isSrchDestClicked: Bool = false
+    
+    var isSrchSrcFilledProgrammatically: Bool = false
+    var isSrchDestFilledProgrammatically: Bool = false
+    
+    var searchedText : String = ""
+    
+    var reqBody : RoutesBody?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configView()
@@ -55,21 +65,37 @@ class CustomSearchViewController: UIViewController {
     }
     
     @IBAction func searchRoute(_ sender: Any) {
+        if self.peopleTextBox.text == ""{
+            reqBody!.transport_types[3].selected = true
+        }else{
+            reqBody!.transport_types[3].selected = false
+        }
+        reqBody!.start_time = 1588069980000
+        reqBody!.start_lat = srcData!.lat
+        reqBody!.start_lng = srcData!.lng
+        reqBody!.stop_lat = destData!.lat
+        reqBody!.stop_lng = destData!.lng
+        
+        getRoutes()
     }
     
     
-    @IBAction func switchBus(_ sender: Any) {
+    @IBAction func switchBus(_ sender: UISwitch) {
+        reqBody!.transport_types[0].selected = sender.isOn
+        print(sender.isOn)
     }
     
-    @IBAction func switchTrolley(_ sender: Any) {
+    @IBAction func switchTrolley(_ sender: UISwitch) {
+        reqBody!.transport_types[1].selected = sender.isOn
     }
     
-    @IBAction func switchTram(_ sender: Any) {
+    @IBAction func switchTram(_ sender: UISwitch) {
+        reqBody!.transport_types[2].selected = sender.isOn
     }
     
     @IBAction func srcBtn(_ sender: Any) {
         //print("aici")
-        //let searchPlaces = SearchPlacesViewController()
+        //let searchPlaces = SearchResultsViewController()
         //searchPlaces.searchFor = "From"
         //navigationController?.pushViewController(searchPlaces, animated: true)
     }
@@ -79,9 +105,12 @@ class CustomSearchViewController: UIViewController {
     }
     
     func configView(){
+        let helper = Helper()
+        
         self.filterView.isHidden = true
         self.searchBtn.isHidden = true
         self.placeTblView.isHidden = true
+        self.reqBody = helper.getRoutesBody()
     }
     
     func toggleSearchBtn() {
@@ -89,6 +118,73 @@ class CustomSearchViewController: UIViewController {
             self.searchBtn.isHidden = true
         }else{
             self.searchBtn.isHidden = false
+        }
+    }
+    
+    func reloadData(){
+        self.placeTblView.reloadData()
+    }
+    
+    func checkSrcsBars() -> Bool {
+        if self.isSrchSrcClicked && srchSource.text! == "" {
+            return true
+        }else if self.isSrchDestClicked && srchDestination.text! == "" {
+            return true
+        }else{
+            return false
+        }
+    }
+    
+    func toggleDataSources(){
+        
+        filterDataSource()
+        
+        if tableDataSource.count == 0 && checkSrcsBars(){
+            self.placeTblView.isHidden = true
+        }else{
+            self.placeTblView.isHidden = false
+        }
+        
+        self.reloadData()
+    }
+    
+    func filterDataSource(){
+        if isSrchSrcClicked{
+            tableDataSource = srcDataSource.filter({$0.name!.lowercased().contains(searchedText.lowercased()) } ).sorted(by: { $0.name! < $1.name! })
+            
+        }else if isSrchDestClicked{
+            tableDataSource = destDataSource.filter({$0.name!.lowercased().contains(searchedText.lowercased()) } ).sorted(by: { $0.name! < $1.name! })
+        }
+    }
+    
+    func getPlacesData(startingWith text: String) {
+        let helper = Helper()
+        
+        helper.getPlaces(startingWith: text)
+            .done{ placesResponce -> Void in
+                if self.isSrchSrcClicked{
+                    self.srcDataSource = placesResponce.places!
+                }else if self.isSrchDestClicked{
+                    self.destDataSource = placesResponce.places!
+                }
+                self.toggleDataSources()
+                //self.reloadData()
+                
+            }.catch{ err in
+                print("errors occure: \(err)")
+        }
+    }
+    
+    func getRoutes() {
+        let helper = Helper()
+        
+        helper.getRoutes(headerBody: reqBody!)
+            .done{ routesResponse -> Void in
+                self.routeDataSource = routesResponse.routes!
+                //self.reloadData()
+                print(self.routeDataSource)
+            }.catch{ err in
+                print("errors occure: \(err)")
         }
     }
     /*
@@ -102,34 +198,7 @@ class CustomSearchViewController: UIViewController {
         
         toggleViews()
     }
-    func loadSearchBars(){
-        srchSource.translatesAutoresizingMaskIntoConstraints = false
-        srchDestination.translatesAutoresizingMaskIntoConstraints = false
-        //self.view.addSubview(srchSource)
-        self.view.addSubview(srchDestination)
-        
-        //srchSource.placeholder = "Punct de plecare"
-        srchDestination.placeholder = "Punct de sosire"
-        
-        let margins = view.safeAreaLayoutGuide
-        
-        //srchSource.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        srchSource.topAnchor.constraint(equalTo: margins.topAnchor).isActive = true
-        srchSource.trailingAnchor.constraint(equalTo: margins.trailingAnchor).isActive = true
-        srchSource.leadingAnchor.constraint(equalTo: margins.leadingAnchor).isActive = true
-        srchSource.bottomAnchor.constraint(equalTo: srchSource.topAnchor, constant: 50).isActive = true
-        
-        //srchDestination.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        srchDestination.topAnchor.constraint(equalTo: srchSource.bottomAnchor).isActive = true
-        //srchDestination.topAnchor.constraint(equalTo: margins.topAnchor, constant: 50).isActive = true
-        srchDestination.trailingAnchor.constraint(equalTo: margins.trailingAnchor).isActive = true
-        srchDestination.leadingAnchor.constraint(equalTo: margins.leadingAnchor).isActive = true
-        srchDestination.bottomAnchor.constraint(equalTo: srchDestination.topAnchor, constant: 50).isActive = true
-        
-        srchSource.delegate = self
-        srchDestination.delegate = self
-        
-    }
+    
     
     func loadNoDataLbl(){
         /*self.view.addSubview(lblNoData)
@@ -174,26 +243,156 @@ class CustomSearchViewController: UIViewController {
     */
     
 
-    /*
+    
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?){
+        
+        if segue.identifier == "ShowSearchResults"{
+            
+            let newController = segue.destination as! SearchResultsViewController
+            
+            newController.title = "Rute"
+            newController.dataSource = self.routeDataSource
+            
+        }
+        
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
-    */
 
 }
 
 extension CustomSearchViewController: UISearchBarDelegate{
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        //print("aici")
-       // let searchPlaces = SearchPlacesViewController()
-       // searchPlaces.searchFor = "From"
-       // navigationController?.pushViewController(searchPlaces, animated: true)
+        if searchBar == srchSource{
+            self.isSrchSrcClicked = true
+            self.isSrchDestClicked = false
+            if searchBar.text == ""{
+                self.tableDataSource = []
+                self.reloadData()
+            }else{
+                self.toggleDataSources()
+            }
+            
+            
+        }else if searchBar == srchDestination{
+            self.isSrchSrcClicked = false
+            self.isSrchDestClicked = true
+            if searchBar.text! == ""{
+                self.tableDataSource = []
+                self.reloadData()
+            }else{
+                self.toggleDataSources()
+            
+            }
+        }
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar == srchSource{
+            if isSrchSrcFilledProgrammatically{
+                self.isSrchSrcFilledProgrammatically = false
+            
+            }else{
+                if searchBar.text! == ""{
+                    self.srcDataSource = []
+                    self.toggleDataSources()
+                    self.srcData = nil
+                    self.toggleSearchBtn()
+                    
+                }else if searchBar.text!.count == 1{
+                    self.getPlacesData(startingWith: searchBar.text!)
+                    
+                }else{
+                    self.searchedText = searchBar.text!
+                    self.filterDataSource()
+                    self.reloadData()
+                }
+                
+            }
+            
+        }else if searchBar == srchDestination{
+            if isSrchDestFilledProgrammatically{
+                self.isSrchDestFilledProgrammatically = false
+            
+            }else{
+                if searchBar.text! == ""{
+                    self.destDataSource = []
+                    self.toggleDataSources()
+                    self.destData = nil
+                    self.toggleSearchBtn()
+                
+                }else if searchBar.text!.count == 1{
+                    self.getPlacesData(startingWith: searchBar.text!)
+                
+                }else{
+                    self.searchedText = searchBar.text!
+                    self.filterDataSource()
+                    self.reloadData()
+                }
+            }
+        }
+    }
+}
+
+
+extension CustomSearchViewController: UITableViewDataSource, UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
+        return self.tableDataSource.count
         
     }
-    //func searchbarth
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "PlaceCell") as! PlacesTableViewCell
+        
+        cell.setPlaceCell(with: tableDataSource[indexPath.row])
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if self.isSrchSrcClicked{
+            self.srcData = tableDataSource[indexPath.row]
+            self.isSrchSrcFilledProgrammatically = true
+            self.srchSource.text = srcData!.name!
+            self.placeTblView.isHidden = true
+            
+        }else if self.isSrchDestClicked{
+            self.destData = tableDataSource[indexPath.row]
+            self.isSrchDestFilledProgrammatically = true
+            self.srchDestination.text = destData!.name!
+            self.placeTblView.isHidden = true
+        
+        }
+        
+        toggleSearchBtn()
+    }
 }
+
+class PlacesTableViewCell: UITableViewCell {
+
+    @IBOutlet weak var lblPlaceName: UILabel!
+    @IBOutlet weak var lblPlaceDesc: UILabel!
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+    }
+    
+    override func setSelected(_ selected: Bool, animated: Bool) {
+        super.setSelected(selected, animated: animated)
+    }
+    
+    func setPlaceCell(with place: Place){
+        self.lblPlaceName.text = place.name
+        if(place.description != nil){
+            self.lblPlaceDesc.text = place.description
+        }else{
+            self.lblPlaceDesc.text = ""
+        }
+    }
+}
+
+

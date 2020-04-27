@@ -169,6 +169,98 @@ class Helper {
     }
     
     
+    /*
+     * Desc: requested Search tab -> places list starting with "name"
+     * Controler Caller: CustomSearchViewControlller
+     */
+    func getPlaces(startingWith name: String?) -> Promise<PlacesReq>{
+        
+        let jsonUrlString = "https://info.stbsa.ro/rp/api/places?lang=ro&query=\(name!)"
+        
+        return Promise<PlacesReq>{ resolver in
+            Alamofire.request(jsonUrlString).responseString{
+                response in
+                switch(response.result){
+                case .success(let data):
+                    
+                    if let json = data.data(using: .utf8){
+                        do{
+                            let res = try JSONDecoder().decode(PlacesReq.self, from: json)
+                            //print(res)
+                            resolver.fulfill(res)
+                        }catch{
+                            resolver.reject(error)
+                        }
+                        
+                    }
+                case .failure(let err):
+                    print(err)
+                    resolver.reject(err)
+                }
+            }
+        }
+    }
+    
+    
+    /*
+     * Desc: requested Search tab -> list of routes
+     * Controler Caller: CustomSearchViewControlller
+     */
+    func getRoutes(headerBody body: RoutesBody) -> Promise<RoutesResponse>{
+        
+        let jsonUrlString = "https://info.stbsa.ro/rp/api/routes?lang=ro"
+        //let params = body!.toJson()
+        let json = try! JSONEncoder().encode(body)
+        let params = try! JSONSerialization.jsonObject(with: json, options: []) as! [String:AnyObject]
+        //let params = body! as! [String:AnyObject]
+        print("\n\n\n")
+        //print("--                     --     ------------------- ")
+        
+        print(params)
+         print("\n\n\n")
+        let header = ["Content-Type": "application/json"]
+        return Promise<RoutesResponse>{ resolver in	
+            
+            Alamofire.request(jsonUrlString, method: .post, parameters: params, encoding: JSONEncoding.default, headers: header ).responseString{
+            //Alamofire.request(jsonUrlString).responseString{
+                response in
+                switch(response.result){
+                case .success(let data):
+                    
+                    if let json = data.data(using: .utf8){
+                        do{
+                            let res = try JSONDecoder().decode(RoutesResponse.self, from: json)
+                             print("\n------------------------------------------\n\n")
+                            print(res)
+                            resolver.fulfill(res)
+                        }catch{
+                            resolver.reject(error)
+                        }
+                        
+                    }
+                case .failure(let err):
+                    print(err)
+                    resolver.reject(err)
+                }
+            }
+        }
+    }
+    
+    
+    func getRoutesBody()-> RoutesBody{
+        var bodyObj = RoutesBody()
+        
+        bodyObj.transport_types.append(TransportType(type: "BUS", name: "Autobuz", selected: true))
+        bodyObj.transport_types.append(TransportType(type: "CABLE_CAR", name: "Troleibuz", selected: true))
+        bodyObj.transport_types.append(TransportType(type: "TRAM", name: "Tramvai", selected: true))
+        bodyObj.transport_types.append(TransportType(type: "SUBWAY", name: "Metrou", selected: true))
+        
+        bodyObj.organisations.append(Organisation(id: 2, logo: "https://info.stbsa.ro/src/img/avl/metrorex/logos/logo.png", active: true, name: "METROREX", selected: false))
+        bodyObj.organisations.append(Organisation(id: 1, logo: "https://info.stbsa.ro/src/img/avl/stbsa/logos/logo.png", active: true, name: "STBSA", selected: true))
+        
+        return bodyObj
+    }
+    
     
     
 }

@@ -77,14 +77,17 @@ struct RoutesBody: Encodable{
     var stop_lat: Float?
     var stop_lng: Float?
     var max_walk_distance: Int = 1000
-    var transport_types: [TransportType]?
-    var organisations: [Organisation]?
+    var transport_types: [TransportType] = []
+    var organisations: [Organisation] = []
+    var lang: String = "ro"
+    
 }
 //getRoutes body
 struct TransportType: Encodable {
     var type: String?
     var name: String?
     var selected: Bool?
+    
 }
 
 //getRoutes body
@@ -94,10 +97,11 @@ struct Organisation: Encodable {
     var active: Bool?
     var name: String?
     var selected: Bool?
+    
 }
 
-
-struct RoutesResponce: Decodable {
+//getRoutes response
+struct RoutesResponse: Decodable {
     var routes:[Route]?
 }
 

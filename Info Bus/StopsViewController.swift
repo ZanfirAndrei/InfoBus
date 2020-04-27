@@ -43,7 +43,6 @@ class StopsViewController: UIViewController {
                 self.tvReloadData()
                 
             }.catch{ err in
-                print("eroare aici!")
                 print("errors occure: \(err)")
         }
     }
