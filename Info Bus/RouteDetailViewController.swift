@@ -43,29 +43,33 @@ extension RouteDetailViewController: UITableViewDataSource, UITableViewDelegate{
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        var index : Int
+        //var index : Int
         print(segmentDataSource[section].transport_type!)
-        if segmentDataSource[section].transport_type! != "Walk"{
-            index = segmentDataSource[section].stops!.count
+        if segmentDataSource[section].transport_type!.lowercased() == "walk"{
+            //index = 1
+            return 1
         }else{
-            index = 1
+            //index = segmentDataSource[section].stops!.count
+            return segmentDataSource[section].stops!.count
         }
         
-        return index
+        //return index
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "segmentDetailCell")!
-        var data : String
-        if segmentDataSource[indexPath.section].transport_type! == "Walk"{
-            let src = segmentDataSource[indexPath.section].stops![0].name
-            let dest = segmentDataSource[indexPath.section].stops![1].name
-            data = src! + " -> " + dest!
+        //var data : String
+        if segmentDataSource[indexPath.section].transport_type!.lowercased() == "walk"{
+            let src = segmentDataSource[indexPath.section].stops![0].name!
+            let dest = segmentDataSource[indexPath.section].stops![1].name!
+            //data = src + " -> " + dest
+            cell.textLabel?.text = "\(src) -> \(dest)"
         } else {
-            data = segmentDataSource[indexPath.section].stops![indexPath.row].name!
+            //data = segmentDataSource[indexPath.section].stops![indexPath.row].name!
+             cell.textLabel?.text = segmentDataSource[indexPath.section].stops![indexPath.row].name!
         }
         
-        cell.textLabel?.text = data
+        //cell.textLabel?.text = data
         //dataSource[indexPath.row])
         return cell
     }
@@ -84,7 +88,7 @@ extension RouteDetailViewController: UITableViewDataSource, UITableViewDelegate{
         
         var name : String
         
-        if segmentDataSource[section].transport_type! == "Walk"{
+        if segmentDataSource[section].transport_type!.lowercased() == "walk"{
             name = "Mers"
         }else{
             name = segmentDataSource[section].transport_name!

@@ -110,7 +110,8 @@ class SearchResultsTableCell: UITableViewCell, UICollectionViewDataSource, UICol
     
     func setSearchResultsCell(with route: Route){
         let duration = Int(route.duration! / 60)
-        self.lblDurationTVC.text = "\(duration)"
+        self.lblDurationTVC.text = " \(duration) minute"
+        self.lblNumOfPeople.text = " \(route.number_of_people!) persoane"
         self.segmentsDataSource = route.segments!
     }
     
@@ -143,12 +144,30 @@ class SegmentCollectionCell: UICollectionViewCell{
         super.awakeFromNib()
     }
     
+    func getImageName(of type:String)->String{
+        
+        switch type.lowercased() {
+        case "walk": return "walk"
+        case "bus": return "bus"
+        case "subway": return "subway"
+        case "cable_car": return "troleibuz"
+        case "poi": return "point"
+        case "tram": return "tram"
+        case "ticket_office": return "ticket"
+        
+        default: return "search"
+        }
+    
+    }
+    
     func setSegmentCollCell(with segment: Segment){
         let duration = Int( segment.duration! / 60000)
         self.lblTransportType.text = segment.transport_name
-        self.lblDurationCVC.text = "\(duration)"
+        self.lblDurationCVC.text = "\(duration) min"
+        self.lblTransportType.text = segment.transport_name
+        //self.imgTransportType.image = UIImage(named: getImageName(of: segment.transport_type!))
     
-    }
+    } 
     
     
 }

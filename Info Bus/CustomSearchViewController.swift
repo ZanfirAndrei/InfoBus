@@ -45,6 +45,16 @@ class CustomSearchViewController: UIViewController {
     
     var reqBody : RoutesBody?
     
+    var isDataRecieved: Bool = false
+    var isDataValid: Bool = false
+    var isDataProcessed: Bool = false
+    
+    var defaultNumOfPeople = 30
+    var isOkNumOfPeople : Bool = false
+    var isOkMaxTime : Bool = false
+    
+    var errorMessage : String = ""
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configView()
@@ -65,19 +75,29 @@ class CustomSearchViewController: UIViewController {
     }
     
     @IBAction func searchRoute(_ sender: Any) {
-        if self.peopleTextBox.text == ""{
-            reqBody!.transport_types[3].selected = true
+        self.isDataValid = false
+        
+        if !self.isDataRecieved {
+            if self.peopleTextBox.text == ""{
+                reqBody!.transport_types[3].selected = true
+            }else{
+                reqBody!.transport_types[3].selected = false
+            }
+            reqBody!.start_time = 1588596598000
+            reqBody!.start_lat = srcData!.lat
+            reqBody!.start_lng = srcData!.lng
+            reqBody!.stop_lat = destData!.lat
+            reqBody!.stop_lng = destData!.lng
+            
+            getRoutes()
         }else{
-            reqBody!.transport_types[3].selected = false
+            let message = checkData()
+            if self.isDataValid {
+                self.performSegue(withIdentifier: "ShowSearchResults", sender: self.resultBtn)
+            }else{
+                self.launchAlert(message: message)
+            }
         }
-        reqBody!.start_time = 1588596598000
-        reqBody!.start_lat = srcData!.lat
-        reqBody!.start_lng = srcData!.lng
-        reqBody!.stop_lat = destData!.lat
-        reqBody!.stop_lng = destData!.lng
-        
-        getRoutes()
-        
     }
     
     
@@ -158,6 +178,152 @@ class CustomSearchViewController: UIViewController {
         }
     }
     
+    func launchAlert(message: String){
+        let alert = UIAlertController(title: "Eroare", message: message, preferredStyle: .alert)
+        let okAction = UIAlertAction(title: "Am inteles!", style: .cancel)
+        
+        alert.addAction(okAction)
+        
+        self.present(alert,animated: true)
+    }
+    
+    func validateData() -> Bool{
+        self.isOkMaxTime = false
+        self.isOkNumOfPeople = false
+        
+        var maxNOP = -1
+        var minTime = -1
+        
+        routeDataSource.forEach { route in
+            if maxNOP == -1{
+                maxNOP = route.number_of_people!
+            }else if maxNOP < route.number_of_people!{
+                maxNOP = route.number_of_people!
+            }
+            let time = Int(route.duration!/60)
+            if minTime == -1{
+                minTime = time
+            }else if minTime < time{
+                minTime = time
+            }
+        }
+        if self.peopleTextBox.text! != ""{
+            let tBoxMaxNOP = Int(self.peopleTextBox.text!)!
+            if maxNOP <= tBoxMaxNOP {
+                self.isOkNumOfPeople = true
+            }
+        }else{
+            self.isOkNumOfPeople = true
+        }
+        
+        if self.timeTextBox.text! != ""{
+            let tBoxMaxTime = Int(self.timeTextBox.text!)!
+            if minTime <= tBoxMaxTime{
+                self.isOkMaxTime = true
+            }
+        }else{
+            self.isOkMaxTime = true
+        }
+        
+        if  self.isOkMaxTime && self.isOkNumOfPeople{
+            self.errorMessage = ""
+            self.isDataValid = true
+            return true
+        } else{
+            
+            self.errorMessage = "Nu s-au gasit rute pentru optiunile introduse!"
+            
+            if  !self.isOkMaxTime{
+                self.errorMessage += "\n Timpul minim valabil este: \(minTime) min."
+                
+            } else if !self.isOkNumOfPeople  {
+                
+                self.errorMessage += "\n Numarul minim de persoane valabil este: \(maxNOP) persoane."
+            }
+            self.isDataValid = false
+            return false
+        }
+        
+    }
+    
+    func getRandomnNOP(numMaxim: Int, type: String, numOfStops: Int ) -> Int{
+        if type.lowercased() == "walk" {
+            return -1
+        }else {
+            let maxNumber = numMaxim + Int(numMaxim/4)
+            let myNumMax = Int(maxNumber/numOfStops)
+            let nr = arc4random_uniform(UInt32(myNumMax))
+            return Int(nr)
+        }
+    }
+    
+    func processData(with maxNumberOfPeople: Int){
+        
+        var myRoutes :[Route] = []
+        var currentIndex = -1
+        routeDataSource.forEach{route in
+            
+            myRoutes.append(route)
+            currentIndex += 1
+            let numOfstops = route.segments!.filter({!$0.transport_type!.lowercased().contains("walk")}).count
+            
+            myRoutes[currentIndex].segments! = []
+            
+            var maxNumOfPeople = -1
+            
+            route.segments!.forEach{
+                var segment = $0
+                let nrOfPeople = getRandomnNOP(numMaxim: maxNumberOfPeople, type: $0.transport_type!, numOfStops: numOfstops)
+                if nrOfPeople == -1{
+                    segment.number_of_people = 0
+                    
+                    if maxNumOfPeople == -1{
+                        maxNumOfPeople = 0
+                    }else if maxNumOfPeople < 0{
+                        maxNumOfPeople = 0
+                    }
+                    
+                }else{
+                    if maxNumOfPeople == -1{
+                        maxNumOfPeople = nrOfPeople
+                    }else if maxNumOfPeople < nrOfPeople{
+                        maxNumOfPeople = nrOfPeople
+                    }
+                }
+                
+                myRoutes[currentIndex].segments!.append(segment)
+            }
+            myRoutes[currentIndex].number_of_people = maxNumberOfPeople
+        }
+        
+        self.isDataProcessed = true
+        self.routeDataSource = myRoutes
+    }
+    
+    func checkData() -> String{
+        if isDataProcessed{
+            if validateData(){
+                return ""
+            }else{
+                return self.errorMessage
+            }
+        }else{
+            var numberOfpeople = 0
+            if self.peopleTextBox.text! != ""{
+                numberOfpeople = Int(self.peopleTextBox.text!)!
+            }else{
+                numberOfpeople = self.defaultNumOfPeople
+            }
+            processData(with: numberOfpeople)
+            
+            if validateData(){
+                return ""
+            }else{
+                return self.errorMessage
+            }
+        }
+    }
+    
     func getPlacesData(startingWith text: String) {
         let helper = Helper()
         
@@ -182,68 +348,30 @@ class CustomSearchViewController: UIViewController {
         helper.getRoutes(headerBody: reqBody!)
             .done{ routesResponse -> Void in
                 self.routeDataSource = routesResponse.routes!
+                
+                if self.routeDataSource.count == 0{
+                    self.launchAlert(message: "Nu s-au gasit date pentru optiunile introduse!\n Introduceti alte oprioni!")
+                }
+                else{
+                    self.isDataRecieved = true
+                    let message = self.checkData()
+                    
+                    if self.isDataValid {
+                        self.performSegue(withIdentifier: "ShowSearchResults", sender: self.resultBtn)
+                    }else{
+                        self.launchAlert(message: message)
+                        //alerta
+                    }
+                }
                 //self.resultBtn.sendActions(for: .touchUpInside)
-                self.performSegue(withIdentifier: "ShowSearchResults", sender: self.resultBtn)
+                
+                //self.performSegue(withIdentifier: "ShowSearchResults", sender: self.resultBtn)
                 //self.reloadData()
                 //print(self.routeDataSource)
             }.catch{ err in
                 print("errors occure: \(err)")
         }
     }
-    /*
-    func configViews(){
-        //TODO
-        loadSearchBars()
-        loadNoDataLbl()
-        //loadTableView()
-        //loadFilter()
-        //loadBtns()
-        
-        toggleViews()
-    }
-    
-    
-    func loadNoDataLbl(){
-        /*self.view.addSubview(lblNoData)
-        
-        lblNoData.text = " Niciun rezultat! "
-        lblNoData.textAlignment = .center
-        lblNoData.font.withSize(40)
-        
-        lblNoData.topAnchor.constraint(equalTo: self.srchDestination.bottomAnchor ).isActive = true
-        lblNoData.bottomAnchor.constraint(equalTo: self.view.bottomAnchor ).isActive = true
-        lblNoData.leftAnchor.constraint(equalTo: self.view.leftAnchor ).isActive = true
-        lblNoData.rightAnchor.constraint(equalTo: self.view.rightAnchor ).isActive = true
-        //lblNoData.isHidden = true*/
-    }
-    
-    func toggleViews(){
-        
-        if toggleStatus == 0 { //initial / default
-        
-        }else if toggleStatus == 1{ //search source
-            
-            if dataStatus == 0{ //no data
-                
-            }else if dataStatus == 1{ // data
-                
-            }
-            
-        }else if toggleStatus == 2{ //search destination
-            
-            if dataStatus == 0{ //no data
-                
-            }else if dataStatus == 1{ // data
-                
-            }
-            
-        }else if toggleStatus == 3{ //filtering
-            
-        }else if toggleStatus == 4{ //ready
-            
-        }
-    }
-    */
     
 
     
