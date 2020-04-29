@@ -70,13 +70,14 @@ class CustomSearchViewController: UIViewController {
         }else{
             reqBody!.transport_types[3].selected = false
         }
-        reqBody!.start_time = 1588069980000
+        reqBody!.start_time = 1588596598000
         reqBody!.start_lat = srcData!.lat
         reqBody!.start_lng = srcData!.lng
         reqBody!.stop_lat = destData!.lat
         reqBody!.stop_lng = destData!.lng
         
         getRoutes()
+        
     }
     
     
@@ -181,8 +182,10 @@ class CustomSearchViewController: UIViewController {
         helper.getRoutes(headerBody: reqBody!)
             .done{ routesResponse -> Void in
                 self.routeDataSource = routesResponse.routes!
+                //self.resultBtn.sendActions(for: .touchUpInside)
+                self.performSegue(withIdentifier: "ShowSearchResults", sender: self.resultBtn)
                 //self.reloadData()
-                print(self.routeDataSource)
+                //print(self.routeDataSource)
             }.catch{ err in
                 print("errors occure: \(err)")
         }

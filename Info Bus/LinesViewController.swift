@@ -54,7 +54,6 @@ class LinesViewController: UIViewController {
     // MARK: - Navigation
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?){
-        
         if segue.identifier == "LineShowStops"{
             
             let newController = segue.destination as! LineStopsViewController
